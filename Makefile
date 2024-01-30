@@ -185,8 +185,8 @@ UPROGS=\
 	_Test_Thread\
 	_Test_Thread2\
 
-fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS)
+fs.img: mkfs README.md $(UPROGS)
+	./mkfs fs.img README.md $(UPROGS)
 
 -include *.d
 
