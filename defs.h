@@ -122,10 +122,6 @@ void            wakeup(void*);
 void            yield(void);
 int clone(void (*)(void*,void*),void*,void*,void*);
 int join(int);
-int requestresource(int);
-int releaseresource(int);
-int writeresource(int,void*,int,int);
-int readresource(int,int,int,void*);
 //We will add clone & join syscall prototypes here
 
 

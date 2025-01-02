@@ -29,22 +29,6 @@ thread_create(void (*worker)(void*,void*),void* arg1,void* arg2)
   int Thread_id=clone(worker,arg1,arg2,Child_Stack);
   return Thread_id;
 }
-int REQUEST(int Resource_ID)
-{
-  return requestresource(Resource_ID);
-}
-int RELEASE(int Resource_ID)
-{
-  return releaseresource(Resource_ID);
-}
-int WRITE(int Resource_ID,void* buffer,int offset, int size)
-{
-  return writeresource(Resource_ID,buffer,offset,size);
-}
-int READ(int Resource_ID,int offset, int size,void* buffer)
-{
-  return readresource(Resource_ID,offset,size,buffer);
-}
 int thread_join(int thread_id)
 {
   return join(thread_id);

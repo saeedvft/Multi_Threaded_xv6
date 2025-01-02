@@ -25,10 +25,6 @@ int sleep(int);
 int uptime(void);
 int clone(void (*)(void*,void*),void*,void*,void*);
 int join(int);
-int requestresource(int);
-int writeresource(int,void*,int,int);
-int readresource(int,int,int,void*);
-int releaseresource(int);
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);
@@ -46,10 +42,7 @@ int atoi(const char*);
 //Thread library
 int thread_create(void (*)(void*,void*),void*,void*);
 int thread_join(int thread_id);
-int REQUEST(int);
-int WRITE(int,void*,int,int);
-int READ(int,int,int,void*);
-int RELEASE(int);
+
 //Lock System
 typedef struct Lock
 {

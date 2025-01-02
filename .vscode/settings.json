@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "proc.h": "c",
-        "spinlock.h": "c",
-        "user.h": "c"
-    }
-}

@@ -43,52 +43,6 @@ int sys_clone(void)
   return clone(func,(void*)arg1,(void*)arg2,(void *)child_stack);
 
 }
-int sys_requestresource(void)
-{
-  int Resource_ID;
-  if(argint(0,&Resource_ID)<0)
-    return -1;  
-  return requestresource(Resource_ID);  
-}
-int sys_releaseresource(void)
-{
-  int Resource_ID;
-  if(argint(0,&Resource_ID)<0)
-    return -1;  
-  return releaseresource(Resource_ID);  
-}
-int sys_writeresource(void)
-{
-  int Resource_ID;
-  char* arg1;
-  int Start_Offset;
-  int size;
-  if(argint(0,&Resource_ID)<0)
-    return -1;  
-  if(argptr(1,&arg1,0)<0)
-    return -1; 
-  if(argint(2,&Start_Offset)<0)
-    return -1; 
-  if(argint(3,&size)<0)
-    return -1;    
-  return writeresource(Resource_ID,(void*)arg1,Start_Offset,size);       
-}
-int sys_readresource(void)
-{
-  int Resource_ID;
-  char* arg1;
-  int Start_Offset;
-  int size;
-  if(argint(0,&Resource_ID)<0)
-    return -1;  
-  if(argint(1,&Start_Offset)<0)
-    return -1; 
-  if(argint(2,&size)<0)
-    return -1; 
-  if(argptr(3,&arg1,0)<0)
-    return -1;    
-  return readresource(Resource_ID,Start_Offset,size,(void*)arg1);   
-}
 int sys_join(void)
 {
   int Thread_id;

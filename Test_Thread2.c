@@ -3,25 +3,19 @@
 #include"stat.h"
 Lock P2_Perm,P1_Perm;
 void p1(void* arg1,void* arg2){
-    REQUEST(0);
     printf(0,"A\n");
-    REQUEST(0);
     Lock_Release(&P2_Perm);
     Lock_Acquire(&P1_Perm);
-    REQUEST(1);
     printf(0,"C\n");
     printf(0,"B\n");
-
     exit();
 }
 
 void p2(void* arg1,void* arg2){
-    REQUEST(1);
     Lock_Acquire(&P2_Perm);
     printf(0,"F\n");
     Lock_Release(&P1_Perm);
     printf(0,"E\n");
-    REQUEST(0);
     printf(0,"G\n");
     exit();
 }
