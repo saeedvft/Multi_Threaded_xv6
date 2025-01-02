@@ -34,6 +34,10 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+// ##################################################################
+enum nodetype {RESOURCE, PROCESS};
+// ##################################################################
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -42,6 +46,7 @@ struct proc {
   enum procstate state;        // Process state
   int pid;                     // Process ID
   int tid;                     // Thread Id
+  int thread_index;
   char* tstack;                // Thread stack
   int Is_Thread;               // if 0 --->Parent o.w child
   int Thread_Num;              // Keeping track of the number of threads of a process
@@ -54,6 +59,15 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 };
+// ##################################################################
+typedef struct resource
+{
+  int resourceid;
+  char name[4];
+  int acquired;
+  void* startaddr;
+}Resource;
+// ##################################################################
 
 // Process memory is laid out contiguously, low addresses first:
 //   text
