@@ -10,6 +10,8 @@ void function(void* arg1,void* arg2){
     exit();
 }
 int main(){
+    void* x=0;
+    printf(0,"TEST : NEW SYSCALLS %d %d %d %d", READ(4,4,4,x),WRITE(4,x,4,4),REQUEST(4),RELEASE(4));   
     int l=3;
     int* size=&l;
     int list[3];

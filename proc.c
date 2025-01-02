@@ -12,6 +12,27 @@ struct {
   struct proc proc[NPROC];
 } ptable;
 
+typedef struct Node {
+    int vertex;
+    enum nodetype type;
+    struct Node* next;
+} Node;
+struct {
+  struct spinlock lock;
+  Node* adjList[MAXTHREAD+NRESOURCE];
+  int visited[MAXTHREAD+NRESOURCE];
+  int recStack[MAXTHREAD+NRESOURCE];
+} Graph;
+//################ADD Your Implementation Here######################
+
+
+
+      //Graph creation and functions
+
+
+
+//##################################################################
+
 static struct proc *initproc;
 
 int nextpid = 1;
@@ -96,8 +117,8 @@ found:
     p->state = UNUSED;
     return 0;
   }
-  sp = p->kstack + KSTACKSIZE;
 
+  sp = p->kstack + KSTACKSIZE;
   // Leave room for trap frame.
   sp -= sizeof *p->tf;
   p->tf = (struct trapframe*)sp;
@@ -149,6 +170,15 @@ userinit(void)
   // run this process. the acquire forces the above
   // writes to be visible, and the lock is also needed
   // because the assignment might not be atomic.
+//################ADD Your Implementation Here######################
+
+
+
+      //Resource page handling and creation
+
+
+
+//##################################################################
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;
@@ -526,7 +556,6 @@ int clone(void (*worker)(void*,void*),void* arg1,void* arg2,void* stack)
   curproc->Thread_Num++;
   New_Thread->tid=curproc->Thread_Num;
   New_Thread->Is_Thread=1;
-
   //The parent of thread will be the process calling clone
   New_Thread->parent=curproc;
 
@@ -660,4 +689,33 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int requestresource(int Resource_ID)
+{
+//################ADD Your Implementation Here######################
+
+//##################################################################
+return -1;
+}
+int releaseresource(int Resource_ID)
+{
+  //################ADD Your Implementation Here######################
+
+//##################################################################
+  return -1;
+}
+int writeresource(int Resource_ID,void* buffer,int offset, int size)
+{
+//################ADD Your Implementation Here######################
+
+//##################################################################
+  return -1;
+}
+int readresource(int Resource_ID,int offset, int size,void* buffer)
+{
+//################ADD Your Implementation Here######################
+
+//##################################################################
+  return -1;
 }
