@@ -1,3 +1,15 @@
+#define NRESOURCE 4
+
+// ##################################################################
+typedef struct resource
+{
+  int resourceid;
+  char name[4];
+  int acquired;
+  void* startaddr;
+} Resource;
+// ##################################################################
+
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -58,16 +70,10 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  char* shared_page;            //pointer to shared page
+  Resource* resource;           //pointer to shared resource metadata
 };
-// ##################################################################
-typedef struct resource
-{
-  int resourceid;
-  char name[4];
-  int acquired;
-  void* startaddr;
-}Resource;
-// ##################################################################
+
 
 // Process memory is laid out contiguously, low addresses first:
 //   text

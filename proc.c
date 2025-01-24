@@ -7,6 +7,7 @@
 #include "proc.h"
 #include "spinlock.h"
 
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -171,8 +172,21 @@ userinit(void)
   // writes to be visible, and the lock is also needed
   // because the assignment might not be atomic.
 //################ADD Your Implementation Here######################
-
-
+  char* page_start = kalloc();
+  if(!page_start){
+    panic("userinit: out of memory?");
+  }
+  cprintf("\n\nAllocated Page for MultiThreading: %p\n\n", page_start);
+  Resource* metadata_half = (Resource*)page_start;
+  char* data_half = page_start + 1024 * 2;
+  for (int i = 0; i < 128; i++)
+  {
+    metadata_half[i].acquired = 0;
+    metadata_half[i].resourceid = i;
+    metadata_half[i].startaddr = data_half + 16 * i;
+  }
+  
+  
 
       //Resource page handling and creation
 
@@ -693,17 +707,26 @@ procdump(void)
 
 int requestresource(int Resource_ID)
 {
-//################ADD Your Implementation Here######################
-
-//##################################################################
-return -1;
+  struct proc *curproc = myproc();
+  if(Resource_ID < 0){
+    return -1;
+  }
+  if(curproc->resource[Resource_ID].acquired != 0){
+    return -1;
+  }
+  curproc->resource[Resource_ID].acquired == 1;
+  return 0;
 }
 int releaseresource(int Resource_ID)
 {
-  //################ADD Your Implementation Here######################
-
-//##################################################################
-  return -1;
+  struct proc *curproc = myproc();
+  if(Resource_ID < 0){
+    return -1;
+  }
+  if(curproc->resource[Resource_ID].acquired == 0){
+    return -1;
+  }
+  //to be continued
 }
 int writeresource(int Resource_ID,void* buffer,int offset, int size)
 {
