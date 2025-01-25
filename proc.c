@@ -35,6 +35,7 @@ struct {
 //##################################################################
 
 static struct proc *initproc;
+Resource* metadata_half;
 
 int nextpid = 1;
 extern void forkret(void);
@@ -137,6 +138,7 @@ found:
   p->Thread_Num=0;
   p->tstack=0;
   p->tid=0;
+  p->resource = metadata_half;
   return p;
 }
 
@@ -177,7 +179,7 @@ userinit(void)
     panic("userinit: out of memory?");
   }
   cprintf("\n\nAllocated Page for MultiThreading: %p\n\n", page_start);
-  Resource* metadata_half = (Resource*)page_start;
+  metadata_half = (Resource*)page_start;
   char* data_half = page_start + 1024 * 2;
   for (int i = 0; i < 128; i++)
   {
@@ -709,12 +711,15 @@ int requestresource(int Resource_ID)
 {
   struct proc *curproc = myproc();
   if(Resource_ID < 0){
+    cprintf("Here1\n");
     return -1;
   }
   if(curproc->resource[Resource_ID].acquired != 0){
+    cprintf("Here2\n");
     return -1;
   }
-  curproc->resource[Resource_ID].acquired == 1;
+  curproc->resource[Resource_ID].acquired = 1;
+  cprintf("requested {%d}\n", Resource_ID);
   return 0;
 }
 int releaseresource(int Resource_ID)
@@ -726,7 +731,8 @@ int releaseresource(int Resource_ID)
   if(curproc->resource[Resource_ID].acquired == 0){
     return -1;
   }
-  //to be continued
+  curproc->resource[Resource_ID].acquired = 0;
+  return 0;
 }
 int writeresource(int Resource_ID,void* buffer,int offset, int size)
 {
