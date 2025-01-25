@@ -8,6 +8,7 @@
 #include "spinlock.h"
 
 
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -18,14 +19,33 @@ typedef struct Node {
     enum nodetype type;
     struct Node* next;
 } Node;
-struct {
+struct Graph{
   struct spinlock lock;
   Node* adjList[MAXTHREAD+NRESOURCE];
   int visited[MAXTHREAD+NRESOURCE];
   int recStack[MAXTHREAD+NRESOURCE];
-} Graph;
+} ;
 //################ADD Your Implementation Here######################
-
+  struct Graph gr;
+  void init_graph(int graph_page){
+    gr.lock.locked = 0;
+    for (int i = 0; i < MAXTHREAD+NRESOURCE; i++)
+    {
+      if(i < NRESOURCE) {
+        gr.adjList[i] = graph_page + 12 * i; 
+        // make node with:
+        // vertex = i
+        // type = RESOURCE
+        // next = NULL 
+      }
+      else {
+        gr.adjList[i] = 0; 
+      }
+      gr.visited[i] = 0;
+      gr.recStack[i] = 0;
+    }
+    
+  }
 
 
       //Graph creation and functions
@@ -188,13 +208,22 @@ userinit(void)
     metadata_half[i].startaddr = data_half + 16 * i;
   }
   
-  
+  // int* arr = (int*)malloc(10 * sizeof(int));
+  // arr[0] = 0;
 
       //Resource page handling and creation
 
 
 
 //##################################################################
+
+//###############################################
+  //graph page
+  Node* graph_page = (Node*)kalloc();
+  init_graph(stoi(graph_page));
+  cprintf("\n\ngraph: %p\n\n", gr.adjList[0]);
+  cprintf("\n\ngraph: %p\n\n", gr.adjList[1]);
+//###############################################
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;

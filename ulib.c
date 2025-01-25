@@ -3,6 +3,7 @@
 #include "fcntl.h"
 #include "user.h"
 #include "x86.h"
+#include "proc.c"
 
 void Lock_Init(Lock* mutex)
 {
@@ -27,6 +28,16 @@ thread_create(void (*worker)(void*,void*),void* arg1,void* arg2)
 {
   void* Child_Stack=malloc(4096);
   int Thread_id=clone(worker,arg1,arg2,Child_Stack);
+  for (int i = NRESOURCE; i < NRESOURCE+MAXTHREAD; i++)
+  {
+    if(gr.adjList[i] == 0){
+      //lock
+      gr.adjList[i] = gr.adjList[i-1] + sizeof(Node);
+      //unlock
+    }
+  }
+  
+  
   return Thread_id;
 }
 int REQUEST(int Resource_ID)

@@ -1,11 +1,14 @@
 #include"types.h"
 #include"user.h"
 #include"stat.h"
+
 Lock My_Lock;
 void function(void* arg1,void* arg2){
     int* X=(int*)arg2;
     Lock_Acquire(&My_Lock);
     printf(2,"Thread %d Finished with value =%d\n",(*X),2*(*X)+1);
+    int tid = gettid();
+    printf("TID:%d\n", tid);
     Lock_Release(&My_Lock);
     exit();
 }
