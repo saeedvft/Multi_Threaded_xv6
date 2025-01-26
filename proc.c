@@ -386,6 +386,11 @@ wait(void)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
+        // if(p->Is_Thread){
+        //   gr.adjList[p->tid]->next = 0;
+        //   gr.adjList[p->tid]->vertex = 0;
+        //   cprintf("Here!\n");
+        // }
         release(&ptable.lock);
         return pid;
       }
@@ -701,6 +706,21 @@ int join(int Thread_id)
       curproc->Thread_Num--;
       jtid = p->tid;
       kfree(p->kstack);
+      //set the Node back to initial
+      if(p->Is_Thread){
+          acquire(&gr.lock);
+          Node* curr_thread = gr.adjList[p->tid - 1 + NRESOURCE];
+          for (Node* n = gr.adjList[0]; n->vertex < NRESOURCE; n += sizeof(Node))
+          {
+            if(n->next == curr_thread){
+              n->next = 0;
+            }
+          }
+          curr_thread->next = 0;
+          release(&gr.lock);
+          // curr_thread->vertex = 0;
+          // cprintf("Is_Thread\n");
+      }
       p->kstack = 0;
       p->pgdir = 0;
       p->pid = 0;
@@ -774,9 +794,24 @@ int requestresource(int Resource_ID)
     cprintf("Here2\n");
     return -1;
   }
+  
+  //find cycle
+  for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
+  {
+    Node* n = gr.adjList[i];
+    for (; n->next != 0; n = n->next)
+    {
+      if(gr.visited[n->vertex] == 1){
+        cprintf("----DEADLOCK!----\n");
+      }
+      gr.visited[n->vertex] = 1;
+    }
+    memset(gr.visited, 0, sizeof(gr.visited));
+  }
+  
+  
+  
   curproc->resource[Resource_ID].acquired = 1;
-  gr.adjList[Resource_ID]->next = gr.adjList[thread_index_in_graph];
-
   // gr.adjList[Resource_ID]->next = gr.adjList[];
   cprintf("requested {%d}\n", Resource_ID);
   return 0;
