@@ -44,7 +44,7 @@ typedef struct Graph{
         gr.adjList[i] = &graph_page[i];
         gr.adjList[i]->next = 0;
         gr.adjList[i]->type = PROCESS;
-        gr.adjList[i]->vertex = i;
+        gr.adjList[i]->vertex = -1;
         
       }
       gr.visited[i] = 0;
@@ -610,7 +610,15 @@ int clone(void (*worker)(void*,void*),void* arg1,void* arg2,void* stack)
   //The tid of the thread will be determined by Number of current threads 
   //of a process
   curproc->Thread_Num++;
-  New_Thread->tid=curproc->Thread_Num;
+  //HERE WILL BE CHANGE TO GET TID = FIRST AVALAIBLE NUMBER < MAXTHREADCOUNT
+  for(int i = NRESOURCE; i < NRESOURCE + MAXTHREAD; i++) {
+    // SURELY A NUMBER WILL BE FIND HERE
+    if(gr.adjList[i]->vertex == -1) {
+      New_Thread->tid = i - NRESOURCE + 1; // 1..MAXTHREAD
+      break;
+    }
+  }
+  // New_Thread->tid=curproc->Thread_Num;
   New_Thread->Is_Thread=1;
   //The parent of thread will be the process calling clone
   New_Thread->parent=curproc;
