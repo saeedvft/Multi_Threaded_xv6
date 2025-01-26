@@ -35,10 +35,6 @@ typedef struct Graph{
         gr.adjList[i]->next = 0;
         gr.adjList[i]->type = RESOURCE;
         gr.adjList[i]->vertex = i;
-        // make node with:
-        // vertex = i
-        // type = RESOURCE
-        // next = NULL 
       }
       else {
         gr.adjList[i] = &graph_page[i];
@@ -783,7 +779,6 @@ int requestresource(int Resource_ID)
   struct proc *curproc = myproc();
   int stat = 0;
   if(Resource_ID < 0){
-    // cprintf("Here1\n");
     return -1;
   }
   int thread_index_in_graph = curproc->tid - 1 + NRESOURCE;
@@ -792,9 +787,7 @@ int requestresource(int Resource_ID)
     acquire(&gr.lock);
     gr.adjList[thread_index_in_graph]->next = gr.adjList[Resource_ID];
     release(&gr.lock);
-    // cprintf("Here2\n");
     stat = -1;
-    // return -1;
   }else{
     curproc->resource[Resource_ID].acquired = 1;
     acquire(&gr.lock);
@@ -808,22 +801,15 @@ int requestresource(int Resource_ID)
   {
     Node* n = gr.adjList[i];
     while(n->next != 0){
-      cprintf("Here!\n");
+      // cprintf("Here!\n");
       if(gr.visited[n->vertex] == 1){
-        // cprintf("----DEADLOCK!----\n");
-        panic("----DEADLOCK!----");
+        cprintf("----DEADLOCK!----\n");
+        return -1;
+        // panic("----DEADLOCK!----");
       }
       gr.visited[n->vertex] = 1;
       n = n->next;
     }
-    // for (; n->next != 0; n = n->next)
-    // {
-    //   cprintf("Here!\n");
-    //   if(gr.visited[n->vertex] == 1){
-    //     cprintf("----DEADLOCK!----\n");
-    //   }
-    //   gr.visited[n->vertex] = 1;
-    // }
     memset(gr.visited, 0, sizeof(gr.visited));
     // for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
     // {
@@ -831,9 +817,6 @@ int requestresource(int Resource_ID)
     // }
     
   }
-  
-  
-  
   return stat;
 }
 int releaseresource(int Resource_ID)
