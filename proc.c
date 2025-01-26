@@ -617,7 +617,7 @@ int clone(void (*worker)(void*,void*),void* arg1,void* arg2,void* stack)
     if(gr.adjList[i]->vertex == -1) {
       New_Thread->tid = i - NRESOURCE + 1; // 1..MAXTHREAD
       acquire(&gr.lock);
-      gr.adjList[i]->vertex = New_Thread->tid;
+      gr.adjList[i]->vertex = i;
       release(&gr.lock);
       break;
     }
@@ -795,6 +795,27 @@ int requestresource(int Resource_ID)
     release(&gr.lock);
     cprintf("requested {%d}\n", Resource_ID);
   }
+  // //PRINT GRAPH
+  // cprintf("printing graph...\n");
+  // for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
+  // {
+  //   int tmp = 0;
+  //   Node* n = gr.adjList[i];
+  //   while(n->next != 0 && tmp < NRESOURCE + MAXTHREAD){
+  //     cprintf("%d -> %d\n", n->vertex, n->next->vertex);
+  //     n = n->next;
+  //     tmp = tmp +1;
+  //   }
+  //   if(tmp == NRESOURCE + MAXTHREAD) {
+  //     cprintf("CYCLE\n");
+      
+  //   }
+  //   else {
+  //     cprintf("%d -> NULL\n", n->vertex);
+  //   }
+  //     cprintf("---------------\n");
+
+  // }
   
   //find cycle
   for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
