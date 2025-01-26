@@ -27,7 +27,7 @@ typedef struct Graph{
 //################ADD Your Implementation Here######################
   Graph gr;
   void init_graph(Node* graph_page){
-    gr.lock.locked = 0;
+    initlock(&gr.lock.locked, "grLock");
     for (int i = 0; i < MAXTHREAD+NRESOURCE; i++)
     {
       if(i < NRESOURCE) {
@@ -615,7 +615,9 @@ int clone(void (*worker)(void*,void*),void* arg1,void* arg2,void* stack)
     // SURELY A NUMBER WILL BE FIND HERE
     if(gr.adjList[i]->vertex == -1) {
       New_Thread->tid = i - NRESOURCE + 1; // 1..MAXTHREAD
+      acquire(&gr.lock);
       gr.adjList[i]->vertex = New_Thread->tid;
+      release(&gr.lock);
       break;
     }
   }
@@ -766,7 +768,9 @@ int requestresource(int Resource_ID)
   int thread_index_in_graph = curproc->tid - 1 + NRESOURCE;
   if(curproc->resource[Resource_ID].acquired != 0){
     // ADD AN EDGE TO BE WAITING FOR THAT RESOURCE
+    acquire(&gr.lock);
     gr.adjList[thread_index_in_graph]->next = gr.adjList[Resource_ID];
+    release(&gr.lock);
     cprintf("Here2\n");
     return -1;
   }
