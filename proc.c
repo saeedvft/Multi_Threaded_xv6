@@ -229,10 +229,10 @@ userinit(void)
   //graph page
   Node* graph_page = (Node*)kalloc();
   init_graph(graph_page);
-  for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
-  {
-    cprintf("\ngraph: %p\n", gr.adjList[i]);
-  }
+  // for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
+  // {
+  //   cprintf("\ngraph: %p\n", gr.adjList[i]);
+  // }
   
 //###############################################
   acquire(&ptable.lock);
@@ -615,6 +615,7 @@ int clone(void (*worker)(void*,void*),void* arg1,void* arg2,void* stack)
     // SURELY A NUMBER WILL BE FIND HERE
     if(gr.adjList[i]->vertex == -1) {
       New_Thread->tid = i - NRESOURCE + 1; // 1..MAXTHREAD
+      gr.adjList[i]->vertex = New_Thread->tid;
       break;
     }
   }
@@ -762,11 +763,16 @@ int requestresource(int Resource_ID)
     cprintf("Here1\n");
     return -1;
   }
+  int thread_index_in_graph = curproc->tid - 1 + NRESOURCE;
   if(curproc->resource[Resource_ID].acquired != 0){
+    // ADD AN EDGE TO BE WAITING FOR THAT RESOURCE
+    gr.adjList[thread_index_in_graph]->next = gr.adjList[Resource_ID];
     cprintf("Here2\n");
     return -1;
   }
   curproc->resource[Resource_ID].acquired = 1;
+  gr.adjList[Resource_ID]->next = gr.adjList[thread_index_in_graph];
+
   // gr.adjList[Resource_ID]->next = gr.adjList[];
   cprintf("requested {%d}\n", Resource_ID);
   return 0;
