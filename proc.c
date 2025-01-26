@@ -27,7 +27,7 @@ typedef struct Graph{
 //################ADD Your Implementation Here######################
   Graph gr;
   void init_graph(Node* graph_page){
-    initlock(&gr.lock.locked, "grLock");
+    initlock(&gr.lock, "grLock");
     for (int i = 0; i < MAXTHREAD+NRESOURCE; i++)
     {
       if(i < NRESOURCE) {
@@ -781,8 +781,9 @@ procdump(void)
 int requestresource(int Resource_ID)
 {
   struct proc *curproc = myproc();
+  int stat = 0;
   if(Resource_ID < 0){
-    cprintf("Here1\n");
+    // cprintf("Here1\n");
     return -1;
   }
   int thread_index_in_graph = curproc->tid - 1 + NRESOURCE;
@@ -791,30 +792,49 @@ int requestresource(int Resource_ID)
     acquire(&gr.lock);
     gr.adjList[thread_index_in_graph]->next = gr.adjList[Resource_ID];
     release(&gr.lock);
-    cprintf("Here2\n");
-    return -1;
+    // cprintf("Here2\n");
+    stat = -1;
+    // return -1;
+  }else{
+    curproc->resource[Resource_ID].acquired = 1;
+    acquire(&gr.lock);
+    gr.adjList[Resource_ID]->next = gr.adjList[thread_index_in_graph];
+    release(&gr.lock);
+    cprintf("requested {%d}\n", Resource_ID);
   }
   
   //find cycle
   for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
   {
     Node* n = gr.adjList[i];
-    for (; n->next != 0; n = n->next)
-    {
+    while(n->next != 0){
+      cprintf("Here!\n");
       if(gr.visited[n->vertex] == 1){
-        cprintf("----DEADLOCK!----\n");
+        // cprintf("----DEADLOCK!----\n");
+        panic("----DEADLOCK!----");
       }
       gr.visited[n->vertex] = 1;
+      n = n->next;
     }
+    // for (; n->next != 0; n = n->next)
+    // {
+    //   cprintf("Here!\n");
+    //   if(gr.visited[n->vertex] == 1){
+    //     cprintf("----DEADLOCK!----\n");
+    //   }
+    //   gr.visited[n->vertex] = 1;
+    // }
     memset(gr.visited, 0, sizeof(gr.visited));
+    // for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
+    // {
+    //   gr.visited[i] = 0;
+    // }
+    
   }
   
   
   
-  curproc->resource[Resource_ID].acquired = 1;
-  // gr.adjList[Resource_ID]->next = gr.adjList[];
-  cprintf("requested {%d}\n", Resource_ID);
-  return 0;
+  return stat;
 }
 int releaseresource(int Resource_ID)
 {
