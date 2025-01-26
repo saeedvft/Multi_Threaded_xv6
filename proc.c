@@ -695,14 +695,16 @@ int join(int Thread_id)
       kfree(p->kstack);
       //set the Node back to initial
       if(p->Is_Thread){
+          acquire(&gr.lock);
           Node* curr_thread = gr.adjList[p->tid - 1 + NRESOURCE];
-          for (Node* n = gr.adjList; n->vertex < NRESOURCE; n += sizeof(Node))
+          for (Node* n = gr.adjList[0]; n->vertex < NRESOURCE; n += sizeof(Node))
           {
             if(n->next == curr_thread){
               n->next = 0;
             }
           }
           curr_thread->next = 0;
+          release(&gr.lock);
           // curr_thread->vertex = 0;
           // cprintf("Is_Thread\n");
       }
@@ -779,7 +781,7 @@ int requestresource(int Resource_ID)
   for (int i = 0; i < NRESOURCE + MAXTHREAD; i++)
   {
     Node* n = gr.adjList[i];
-    for (n; n->next != 0; n = n->next)
+    for (; n->next != 0; n = n->next)
     {
       if(gr.visited[n->vertex] == 1){
         cprintf("----DEADLOCK!----\n");
