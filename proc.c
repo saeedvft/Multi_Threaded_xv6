@@ -156,6 +156,8 @@ found:
   sp -= 4;
   *(uint*)sp = (uint)trapret;
 
+//This is for test
+
   sp -= sizeof *p->context;
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
@@ -757,7 +759,7 @@ int requestresource(int Resource_ID)
     return -1;
   }
   curproc->resource[Resource_ID].acquired = 1;
-  gr.adjList[Resource_ID]->next = gr.adjList[];
+  // gr.adjList[Resource_ID]->next = gr.adjList[];
   cprintf("requested {%d}\n", Resource_ID);
   return 0;
 }
