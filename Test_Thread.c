@@ -2,21 +2,34 @@
 #include"user.h"
 #include"stat.h"
 
+char write_buffer[] = "This is a test.";
+char read_buffer[20];
+
 Lock My_Lock;
 void function1(void* arg1,void* arg2){
-    int* X=(int*)arg2;
+    // int* X=(int*)arg2;
     printf(0,"TEST func1 : %d\n", REQUEST(0));
+    if (writeresource(0, write_buffer, 0, sizeof(write_buffer)) == 0) {
+        printf(1, "Data written to resource 0\n");
+    } else {
+        printf(1, "Failed to write to resource 0\n");
+    }
     sleep(500);
-    printf(2,"Thread %d Finished with value =%d\n",(*X),2*(*X)+1);
-    printf(0,"TEST func1 : %d\n", REQUEST(1));
+    // printf(2,"Thread %d Finished with value =%d\n",(*X),2*(*X)+1);
+    // printf(0,"TEST func1 : %d\n", REQUEST(1));
     exit();
 }
 void function2(void* arg1,void* arg2){
-    int* X=(int*)arg2;
+    // int* X=(int*)arg2;
     printf(0,"TEST func2 : %d\n", REQUEST(1));
     sleep(500);
-    printf(0,"TEST func2 : %d\n", REQUEST(0));
-    printf(2,"Thread %d Finished with value =%d\n",(*X),2*(*X)+1);
+    if (readresource(0, 0, sizeof(write_buffer), read_buffer) == 0) {
+        printf(1, "Data read from resource 0: %s\n", read_buffer);
+    } else {
+        printf(1, "Failed to read from resource 0\n");
+    }
+    // printf(0,"TEST func2 : %d\n", REQUEST(0));
+    // printf(2,"Thread %d Finished with value =%d\n",(*X),2*(*X)+1);
     exit();
 }
 

@@ -51,9 +51,11 @@ typedef struct Graph{
   }
 
 
-      //Graph creation and functions
+//Graph creation and functions
 //##################################################################
 
+
+struct spinlock resource_locks[NRESOURCE];
 static struct proc *initproc;
 Resource* metadata_half;
 
@@ -218,6 +220,10 @@ userinit(void)
 
 
 //##################################################################
+//initialize resource locks
+for (int i = 0; i < NRESOURCE; i++) {
+  initlock(&resource_locks[i], "resource_lock");
+}
 
 //###############################################
   //graph page
@@ -893,13 +899,22 @@ int writeresource(int Resource_ID, void *buffer, int offset, int size) {
         return -1; 
     }
     Resource *res = &metadata_half[Resource_ID];
+
+    acquire(&resource_locks[Resource_ID]);
+
     if (offset < 0 || size < 0 || offset + size > 16) {
-        return -1; 
+      release(&resource_locks[Resource_ID]);
+      return -1; 
     }
     if (res->acquired != myproc()->tid) {
-        return -1; 
+      release(&resource_locks[Resource_ID]);
+      return -1; 
     }
+
     memmove((char *)res->startaddr + offset, buffer, size);
+
+    release(&resource_locks[Resource_ID]);
+
     return 0; 
 }
 int readresource(int Resource_ID, int offset, int size, void *buffer) {
@@ -907,9 +922,17 @@ int readresource(int Resource_ID, int offset, int size, void *buffer) {
         return -1; 
     }
     Resource *res = &metadata_half[Resource_ID];
+
+    acquire(&resource_locks[Resource_ID]);
+
     if (offset < 0 || size < 0 || offset + size > 16) {
-        return -1; 
+      release(&resource_locks[Resource_ID]);
+      return -1; 
     }
+
     memmove(buffer, (char *)res->startaddr + offset, size);
+    
+    release(&resource_locks[Resource_ID]);
+    
     return 0; 
 }
