@@ -786,6 +786,7 @@ int requestresource(int Resource_ID)
   int thread_index_in_graph = curproc->tid - 1 + NRESOURCE;
   if(curproc->resource[Resource_ID].acquired != 0){
     // ADD AN EDGE TO BE WAITING FOR THAT RESOURCE
+    
     acquire(&gr.lock);
     gr.adjList[thread_index_in_graph]->next = gr.adjList[Resource_ID];
     release(&gr.lock);
