@@ -789,7 +789,7 @@ int requestresource(int Resource_ID)
     release(&gr.lock);
     stat = -1;
   }else{
-    curproc->resource[Resource_ID].acquired = 1;
+    curproc->resource[Resource_ID].acquired = curproc->tid;
     acquire(&gr.lock);
     gr.adjList[Resource_ID]->next = gr.adjList[thread_index_in_graph];
     release(&gr.lock);
@@ -852,17 +852,54 @@ int releaseresource(int Resource_ID)
   curproc->resource[Resource_ID].acquired = 0;
   return 0;
 }
-int writeresource(int Resource_ID,void* buffer,int offset, int size)
-{
-//################ADD Your Implementation Here######################
 
-//##################################################################
-  return -1;
+int writeresource(int Resource_ID, void *buffer, int offset, int size) {
+    // بررسی معتبر بودن Resource_ID
+    if (Resource_ID < 0 || Resource_ID >= NRESOURCE) {
+        return -1; // شناسه منبع نامعتبر
+    }
+
+    // دسترسی به ساختار Resource
+    Resource *res = &metadata_half[Resource_ID];
+
+    // بررسی معتبر بودن offset و size
+    if (offset < 0 || size < 0 || offset + size > 16) {
+        return -1; // offset یا size نامعتبر
+    }
+
+    // بررسی اینکه آیا منبع توسط thread فعلی در اختیار گرفته شده است
+    if (res->acquired != myproc()->tid) {
+        return -1; // منبع توسط thread فعلی در اختیار گرفته نشده است
+    }
+
+    // کپی داده‌ها از buffer کاربر به بافر منبع
+    memmove((char *)res->startaddr + offset, buffer, size);
+
+    return 0; // موفقیت‌آمیز
 }
-int readresource(int Resource_ID,int offset, int size,void* buffer)
-{
-//################ADD Your Implementation Here######################
 
-//##################################################################
-  return -1;
+
+int readresource(int Resource_ID, int offset, int size, void *buffer) {
+    // بررسی معتبر بودن Resource_ID
+    if (Resource_ID < 0 || Resource_ID >= NRESOURCE) {
+        return -1; // شناسه منبع نامعتبر
+    }
+
+    // دسترسی به ساختار Resource
+    Resource *res = &metadata_half[Resource_ID];
+
+    // بررسی معتبر بودن offset و size
+    if (offset < 0 || size < 0 || offset + size > 16) {
+        return -1; // offset یا size نامعتبر
+    }
+
+    // // بررسی اینکه آیا هیچ threadی در حال نوشتن روی منبع نیست
+    // if (res->acquired != 0) {
+    //     return -1; // یک thread در حال نوشتن روی منبع است
+    // }
+
+    // کپی داده‌ها از بافر منبع به buffer کاربر
+    memmove(buffer, (char *)res->startaddr + offset, size);
+
+    return 0; // موفقیت‌آمیز
 }
