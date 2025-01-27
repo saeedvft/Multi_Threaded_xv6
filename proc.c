@@ -710,9 +710,11 @@ int join(int Thread_id)
           {
             if(n->next == curr_thread){
               n->next = 0;
+              releaseresource(n->vertex);
             }
           }
           curr_thread->next = 0;
+          
           release(&gr.lock);
           // curr_thread->vertex = 0;
           // cprintf("Is_Thread\n");
@@ -843,6 +845,7 @@ int requestresource(int Resource_ID)
 int releaseresource(int Resource_ID)
 {
   struct proc *curproc = myproc();
+  
   if(Resource_ID < 0){
     return -1;
   }
@@ -850,6 +853,7 @@ int releaseresource(int Resource_ID)
     return -1;
   }
   curproc->resource[Resource_ID].acquired = 0;
+  cprintf("{%d}released : %d\n", curproc->tid, Resource_ID);
   return 0;
 }
 
