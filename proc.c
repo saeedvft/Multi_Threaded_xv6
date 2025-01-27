@@ -25,6 +25,7 @@ typedef struct Graph{
   int recStack[MAXTHREAD+NRESOURCE];
 } Graph;
 //################ADD Your Implementation Here######################
+
   Graph gr;
   void init_graph(Node* graph_page){
     initlock(&gr.lock, "grLock");
@@ -51,9 +52,6 @@ typedef struct Graph{
 
 
       //Graph creation and functions
-
-
-
 //##################################################################
 
 static struct proc *initproc;
@@ -705,18 +703,32 @@ int join(int Thread_id)
       //set the Node back to initial
       if(p->Is_Thread){
           acquire(&gr.lock);
+          // cprintf("%d\n", p->tid);
           Node* curr_thread = gr.adjList[p->tid - 1 + NRESOURCE];
-          for (Node* n = gr.adjList[0]; n->vertex < NRESOURCE; n += sizeof(Node))
+          for (int i = 0; i < NRESOURCE; i++)
           {
+            Node* n = gr.adjList[i];
             if(n->next == curr_thread){
               n->next = 0;
               releaseresource(n->vertex);
+              
             }
+            // cprintf("On Res : %d\n", n->vertex);
           }
+          
+          // for (Node* n = gr.adjList[0]; n->vertex < NRESOURCE; n += sizeof(Node))
+          // {
+          //   cprintf("On Res : %d\n", n->vertex);
+          //   if(n->next == curr_thread){
+          //     n->next = 0;
+          //     releaseresource(n->vertex);
+          //   }
+          // }
           curr_thread->next = 0;
           
+          
+          curr_thread->vertex = -1;
           release(&gr.lock);
-          // curr_thread->vertex = 0;
           // cprintf("Is_Thread\n");
       }
       p->kstack = 0;
@@ -795,7 +807,7 @@ int requestresource(int Resource_ID)
     acquire(&gr.lock);
     gr.adjList[Resource_ID]->next = gr.adjList[thread_index_in_graph];
     release(&gr.lock);
-    cprintf("requested {%d}\n", Resource_ID);
+    // cprintf("requested {%d}\n", Resource_ID);
   }
   // //PRINT GRAPH
   // cprintf("printing graph...\n");
@@ -852,58 +864,52 @@ int releaseresource(int Resource_ID)
   if(curproc->resource[Resource_ID].acquired == 0){
     return -1;
   }
+  
+  // for (int i = 0; i < NRESOURCE; i++)
+  // {
+  //   cprintf("before : res %d : %d\n", i, curproc->resource[i].acquired);
+  //   // cprintf("-------------\n");
+  // }
+  
   curproc->resource[Resource_ID].acquired = 0;
-  cprintf("{%d}released : %d\n", curproc->tid, Resource_ID);
+  
+  // if(curproc->Is_Thread){
+  //   cprintf("Thread %d released : %d\n", curproc->tid, Resource_ID);
+  // }
+  // else{
+  //   cprintf("Not a Thread!\n");
+  // }
+  // for (int i = 0; i < NRESOURCE; i++)
+  // {
+  //   cprintf("after : res %d : %d\n", i, curproc->resource[i].acquired);
+  // }
+  
+  
   return 0;
 }
 
 int writeresource(int Resource_ID, void *buffer, int offset, int size) {
-    // بررسی معتبر بودن Resource_ID
     if (Resource_ID < 0 || Resource_ID >= NRESOURCE) {
-        return -1; // شناسه منبع نامعتبر
+        return -1; 
     }
-
-    // دسترسی به ساختار Resource
     Resource *res = &metadata_half[Resource_ID];
-
-    // بررسی معتبر بودن offset و size
     if (offset < 0 || size < 0 || offset + size > 16) {
-        return -1; // offset یا size نامعتبر
+        return -1; 
     }
-
-    // بررسی اینکه آیا منبع توسط thread فعلی در اختیار گرفته شده است
     if (res->acquired != myproc()->tid) {
-        return -1; // منبع توسط thread فعلی در اختیار گرفته نشده است
+        return -1; 
     }
-
-    // کپی داده‌ها از buffer کاربر به بافر منبع
     memmove((char *)res->startaddr + offset, buffer, size);
-
-    return 0; // موفقیت‌آمیز
+    return 0; 
 }
-
-
 int readresource(int Resource_ID, int offset, int size, void *buffer) {
-    // بررسی معتبر بودن Resource_ID
     if (Resource_ID < 0 || Resource_ID >= NRESOURCE) {
-        return -1; // شناسه منبع نامعتبر
+        return -1; 
     }
-
-    // دسترسی به ساختار Resource
     Resource *res = &metadata_half[Resource_ID];
-
-    // بررسی معتبر بودن offset و size
     if (offset < 0 || size < 0 || offset + size > 16) {
-        return -1; // offset یا size نامعتبر
+        return -1; 
     }
-
-    // // بررسی اینکه آیا هیچ threadی در حال نوشتن روی منبع نیست
-    // if (res->acquired != 0) {
-    //     return -1; // یک thread در حال نوشتن روی منبع است
-    // }
-
-    // کپی داده‌ها از بافر منبع به buffer کاربر
     memmove(buffer, (char *)res->startaddr + offset, size);
-
-    return 0; // موفقیت‌آمیز
+    return 0; 
 }
